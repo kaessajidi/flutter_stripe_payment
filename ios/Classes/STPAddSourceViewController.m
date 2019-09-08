@@ -46,10 +46,29 @@
                 [self performSelector:@selector(handleError:) withObject:error afterDelay:0];
             }
             else {
-                [self.srcDelegate addCardViewController:self didCreatePaymentMethod:paymentMethod completion:^(NSError * _Nullable error) {
-                }];
+                STPSetupIntentConfirmParams *setupIntentParams = [[STPSetupIntentConfirmParams alloc] initWithClientSecret:_client_secret];
+                setupIntentParams.paymentMethodID = paymentMethod.stripeId;
+                [[STPPaymentHandler sharedHandler] confirmSetupIntent:setupIntentParams
+                withAuthenticationContext:self
+                               completion:^(STPPaymentHandlerActionStatus status, STPSetupIntent * setupIntent, NSError * error) {
+                                   switch (status) {
+                                       case STPPaymentHandlerActionStatusSucceeded:
+                                           // Setup succeeded
+                                           [self.srcDelegate addCardViewController:self didCreatePaymentMethod:paymentMethod completion:^(NSError * _Nullable error) {
+                                           }];
+                                       case STPPaymentHandlerActionStatusCanceled:
+                                           // Handle cancel
+                                           [self performSelector:@selector(handleError:) withObject:error afterDelay:0];
+                                       case STPPaymentHandlerActionStatusFailed:
+                                           // Handle error
+                                            [self performSelector:@selector(handleError:) withObject:error afterDelay:0];
+                                       default:;
+                                   }
+                               }];
+                
             }
         }];
+
     }
 }
 

@@ -12,11 +12,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+  String token;
   @override
   initState() {
     super.initState();
 
-    StripeSource.setPublishableKey("pk_test");
+    StripeSource.setPublishableKey("pk_test_6t39nf6YPtFGRdZ5gHmxvMd6");
   }
 
   @override
@@ -43,5 +45,8 @@ class _MyAppState extends State<MyApp> {
 
   void _addSource(String token) {
     print("Token => $token");
+    setState(() {
+
+    });
   }
 }

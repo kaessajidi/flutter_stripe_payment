@@ -13,6 +13,7 @@ class StripeSource {
   }
 
   static bool _publishableKeySet = false;
+  static bool _clientSecretKeySet = false;
 
   static bool get ready => _publishableKeySet;
 
@@ -21,5 +22,12 @@ class StripeSource {
   static void setPublishableKey(String apiKey) {
     _channel.invokeMethod('setPublishableKey', apiKey);
     _publishableKeySet = true;
+  }
+
+  /// set the publishable key that stripe should use
+  /// call this once and before you use [addSource]
+  static void setClientSecret(String clientSecret) {
+    _channel.invokeMethod('setClientSecret', clientSecret);
+    _clientSecretKeySet = true;
   }
 }

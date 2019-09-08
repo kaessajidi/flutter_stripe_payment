@@ -7,6 +7,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
+
+
 class StripePaymentPlugin(private val activity: FragmentActivity) : MethodCallHandler {
 
     companion object {
@@ -18,12 +20,13 @@ class StripePaymentPlugin(private val activity: FragmentActivity) : MethodCallHa
     }
 
     var publishableKey: String? = null
+    var clientSecret: String? = null
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "addSource" -> {
                 publishableKey?.let { key ->
-                    StripeDialog.newInstance("Add Source", key).apply {
+                    StripeDialog.newInstance("Add Source", key, this.clientSecret!!).apply {
 
                         show(this@StripePaymentPlugin.activity.supportFragmentManager, "stripe")
 
@@ -38,6 +41,11 @@ class StripePaymentPlugin(private val activity: FragmentActivity) : MethodCallHa
             }
             "setPublishableKey" -> {
                 publishableKey = call.arguments as String
+                result.success(null)
+            }
+
+            "setClientSecret" -> {
+                clientSecret = call.arguments as String
                 result.success(null)
             }
             else -> result.notImplemented()

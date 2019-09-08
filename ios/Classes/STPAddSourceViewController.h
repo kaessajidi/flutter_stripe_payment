@@ -12,7 +12,7 @@
 @protocol STPAddPaymentMethodViewControllerDelegate;
 
 @interface STPAddSourceViewController : STPAddCardViewController
-
+@property (strong) NSString* client_secret;
 @property (nonatomic, weak, nullable) id<STPAddPaymentMethodViewControllerDelegate> srcDelegate;
 
 @end

@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import com.stripe.android.ApiResultCallback
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.SourceCallback
+import com.stripe.android.SetupIntentResult
+import android.content.Intent
 import com.stripe.android.Stripe
 import com.stripe.android.model.*
 import com.stripe.android.view.CardMultilineWidget
@@ -16,12 +18,15 @@ import java.lang.Exception
 
 class StripeDialog : androidx.fragment.app.DialogFragment() {
 
+    private lateinit var stripe: Stripe
+
     companion object {
-        fun newInstance(title: String, publishableKey: String): StripeDialog {
+        fun newInstance(title: String, publishableKey: String, clientSecret: String): StripeDialog {
             val frag = StripeDialog()
             val args = Bundle()
             args.putString("title", title)
             args.putString("publishableKey", publishableKey)
+            args.putString("clientSecret", clientSecret)
             frag.arguments = args
             return frag
         }
@@ -53,6 +58,7 @@ class StripeDialog : androidx.fragment.app.DialogFragment() {
         super.onCreate(savedInstanceState)
 
         setStyle(STYLE_NO_TITLE, R.style.Theme_AppCompat_Light_Dialog)
+
     }
 
     var tokenListener: ((String) -> (Unit))? = null
@@ -71,24 +77,30 @@ class StripeDialog : androidx.fragment.app.DialogFragment() {
                 val publishableKey = arguments?.getString("publishableKey", null) ?: ""
                 PaymentConfiguration.init(publishableKey)
 
+                val clientSecret = arguments?.getString("clientSecret", null) ?: ""
+
                 val paymentMethodParamsCard = card.toPaymentMethodParamsCard()
                 val paymentMethodCreateParams = PaymentMethodCreateParams.create(
                     paymentMethodParamsCard,
                     PaymentMethod.BillingDetails.Builder().build()
                 )
 
-                val stripe = Stripe(activity!!, PaymentConfiguration.getInstance().publishableKey)
+                stripe = Stripe(activity!!, PaymentConfiguration.getInstance().publishableKey)
 
                 stripe.createPaymentMethod(
                     paymentMethodCreateParams,
                     object : ApiResultCallback<PaymentMethod> {
-                        override fun onSuccess(result: PaymentMethod) {
-                            view?.findViewById<View>(R.id.progress)?.visibility = View.GONE
+                        override fun onSuccess(paymentMethod: PaymentMethod) {
                             view?.findViewById<View>(R.id.buttonSave)?.visibility = View.GONE
 
-                            if (result.id != null) {
-                                tokenListener?.invoke(result.id!!)
-                                dismiss()
+                            if (paymentMethod.id != null) {
+                                //confirmSetupIntent(result, clientSecret)
+                                if(clientSecret != null)
+                                    stripe.confirmSetupIntent(activity!!,
+                                        ConfirmSetupIntentParams.create(paymentMethod!!.id!!, clientSecret!!))
+                                //view?.findViewById<View>(R.id.progress)?.visibility = View.GONE
+                                tokenListener?.invoke(paymentMethod.id!!)
+                                //dismiss()
                             }
                         }
 
@@ -103,6 +115,8 @@ class StripeDialog : androidx.fragment.app.DialogFragment() {
 
                     })
 
+
+
             }
         } else {
             view?.let {
@@ -111,5 +125,10 @@ class StripeDialog : androidx.fragment.app.DialogFragment() {
             }
         }
 
+    }
+
+    private fun confirmSetupIntent(paymentMethod: PaymentMethod, clientSecret: String) {
+        stripe.confirmSetupIntent(activity!!,
+                ConfirmSetupIntentParams.create(paymentMethod!!.id!!, clientSecret!!, "stripe://setup_intent_return"))
     }
 }

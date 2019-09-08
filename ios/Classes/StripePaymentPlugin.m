@@ -19,6 +19,10 @@
   else if ([@"setPublishableKey" isEqualToString:call.method]) {
       [[STPPaymentConfiguration sharedConfiguration] setPublishableKey:call.arguments];
   }
+  else if ([@"setClientSecret" isEqualToString:call.method]) {
+      //[[STPPaymentConfiguration sharedConfiguration] setClientSecret:call.arguments];
+     _client_secret = call.arguments;
+  }
   else {
       result(FlutterMethodNotImplemented);
   }
@@ -26,9 +30,11 @@
 
 -(void)openStripeCardVC:(FlutterResult) result {
     flutterResult = result;
+    
 
     STPAddSourceViewController* addSourceVC = [[STPAddSourceViewController alloc] init];
     addSourceVC.srcDelegate = self;
+    addSourceVC.client_secret = _client_secret;
     
     UINavigationController* navigationController = [[UINavigationController alloc] initWithRootViewController:addSourceVC];
     [navigationController setModalPresentationStyle:UIModalPresentationFormSheet];
@@ -44,8 +50,9 @@
 - (void)addCardViewController:(STPAddSourceViewController *)addCardViewController
               didCreatePaymentMethod:(nonnull STPPaymentMethod *)paymentMethod
                    completion:(nonnull STPErrorBlock)completion {
-    flutterResult(paymentMethod.stripeId);
     
+    
+    flutterResult(paymentMethod.stripeId);
     [addCardViewController dismissViewControllerAnimated:true completion:nil];
 }
 
