@@ -1,5 +1,8 @@
 # stripe_payment
 
+An attemt to implement Stripe SCA for flutter (Not working yet ...)
+
+
 A Flutter plugin to integrate the stripe plugin for iOS and Android. Currently only adding a credit card as paymet method is implemented.
 
 <img src="https://github.com/jonasbark/flutter_stripe_payment/raw/master/screenshot_android.png" width="300">
