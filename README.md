@@ -38,7 +38,7 @@ http.post("https://xxxxx").then((res) {
     });
 });
 ```
-the http call is ment to get the setupintent client secret key and pass it to the channent in order to use it to do the SCA validation after the card token is created.
+the http call is ment to get the setupintent client secret key and pass it to the channel call in order to use it to do the SCA validation after the card token is created.
 
 ## TODO
 
