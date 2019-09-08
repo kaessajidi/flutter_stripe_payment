@@ -29,10 +29,16 @@ from somewhere in your code, e.g. your main.dart file.
 
 To open the dialog:
 ```dart
-StripeSource.addSource().then((String token) {
-    print(token); //your stripe card source token
+http.post("https://xxxxx").then((res) {
+    var data = jsonDecode(res.body);
+    StripeSource.setClientSecret(data['secret']);
+    StripeSource.addSource().then((String token) {
+      //Show card added successfully...
+    ....
+    });
 });
 ```
+the http call is ment to get the setupintent client secret key and pass it to the channent in order to use it to do the SCA validation after the card token is created.
 
 ## TODO
 
